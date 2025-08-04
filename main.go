@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -133,6 +134,15 @@ func SendRequestToStyx(inboundReq *http.Request, styxUrl string, clientCert stri
 		slog.Error("No TLS information in response")
 	} else {
 		slog.Info(resp.TLS.ServerName)
+	}
+
+	resp.Header.Set("X-styx-proxy", "true")
+
+	surrogateKeys := resp.Header.Get("surrogate-key")
+	if surrogateKeys != "" {
+		strings.Replace(surrogateKeys, " ", ",", -1)
+		resp.Header.Set("cache-tag", surrogateKeys)
+		resp.Header.Del("surrogate-key")
 	}
 
 	slog.Info("Response status", "status", resp.Status)

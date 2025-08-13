@@ -120,6 +120,12 @@ func SendRequestToStyx(inboundReq *http.Request, styxUrl string, clientCert stri
 		os.Exit(1)
 	}
 
+	for key, values := range inboundReq.Header {
+		for _, value := range values {
+			req.Header.Add(key, value)
+		}
+	}
+
 	req.Header.Set("PContext-Site-ID", siteId)
 	req.Header.Set("PContext-Site-Env", envId)
 	req.Header.Set("PContext-Zone", zone)
